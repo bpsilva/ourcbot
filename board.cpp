@@ -237,6 +237,7 @@ unsigned long long movements()
 	newboard.white_pawns = b.white_pawns;
 	//pawn = menos signigicativo de aux
 	pawn = aux&-aux;
+
 	while(pawn!=0)
 	{
 		//adiciona pawn em newboard.pawns
@@ -265,6 +266,59 @@ unsigned long long movements()
 		
 	}
 
+
+	if((b.enpassant) && ((long long)(pow(2, 8)-1)<< 32) & b.white_pawns)
+	{
+	newboard.white_pawns = b.white_pawns;
+	aux = b.enpassant;
+
+		if((aux == pow(2,32)) && ((aux << 1) & newboard.white_pawns))
+		{
+			aux<<=9;
+			newboard.white_pawns |=aux;			
+			aux>>=8;
+			aux = - aux;
+			aux--;
+			newboard.white_pawns &=aux;
+			mov[mcounter++] = newboard;			
+		}else
+			{
+				if((aux == pow(2,39)) && ((aux >> 1) & newboard.white_pawns))
+				{
+					aux<<=7;
+					newboard.white_pawns |=aux;			
+					aux>>=8;
+					aux = - aux;
+					aux--;
+					newboard.white_pawns &=aux;
+					mov[mcounter++] = newboard;	
+
+				}else
+					{	
+						if((aux >> 1) & newboard.white_pawns)
+						{					
+							aux<<=7;
+							newboard.white_pawns |=aux;			
+							aux>>=8;
+							aux = - aux;
+							aux--;
+							newboard.white_pawns &=aux;
+							mov[mcounter++] = newboard;
+						}
+						newboard.white_pawns = b.white_pawns;
+						if((aux << 1) & newboard.white_pawns)
+						{					
+							aux<<=9;
+							newboard.white_pawns |=aux;			
+							aux>>=8;
+							aux = - aux;
+							aux--;
+							newboard.white_pawns &=aux;
+							mov[mcounter++] = newboard;
+						}
+					}
+			}
+	}
 
 	for(int i =0;i<mcounter;i++)
 	{
