@@ -80,13 +80,11 @@ void print(unsigned long long board)
 {
 	print2(board, 64);
 }
-//zerar coluna 0 (esquerda) do tabuleiro : board &= esquerdall
-//zerar coluna 7 (direita) do tabuleiro : board &= -72340172838076674
 
 unsigned long long movements()
 {
 	///para teste--------
-	BOARD b = {0, pow(2,15)+pow(2,11), 0, 0, pow(2,9), 0, 0};
+	BOARD b = {pow(2,2), 0, pow(2,15)+pow(2,11), pow(2,6), 0, 0, 0};
 	
 	///------------------
 
@@ -117,9 +115,10 @@ unsigned long long movements()
 	long long direita = -72340172838076674;
 	long long esquerda = 9187201950435737471;
 
-// white pawns' movements
+// MOVIMENTOS DOS PEÕES
 	
-	//para frente
+//---------------------------------------------PARA FRENTE
+
 	aux = b.white_pawns;
 	aux <<= 8;
 	aux &=white_pieces;
@@ -183,7 +182,7 @@ unsigned long long movements()
 	black_pieces = -black_pieces;
 	black_pieces--;
 
-	//para diagonal esquerda
+//-------------------------------------------CAPTURA PARA A ESQUERDA
 	aux = b.white_pawns;
 	aux&=esquerda;
 	aux <<= 9;
@@ -228,7 +227,7 @@ unsigned long long movements()
 		
 	}
 
-	//para diagonal direita
+//--------------------------------------CAPTURA PARA A DIREITA
 	aux = b.white_pawns;
 	aux&=direita;
 	aux <<= 7;
@@ -265,7 +264,9 @@ unsigned long long movements()
 		
 	}
 
-	//en passant
+//--------------------------------------------EN PASSANT
+
+
 	if((b.enpassant) && ((long long)(pow(2, 8)-1)<< 32) & b.white_pawns)
 	{
 	newboard.white_pawns = b.white_pawns;
@@ -315,6 +316,16 @@ unsigned long long movements()
 	}
 
 
+//MOVIMENTOS DAS TORRES
+
+	black_pieces = b.black_pawns | b.black_bishops;
+	black_pieces = black_pieces | b.black_rooks;
+	black_pieces = -black_pieces;
+	black_pieces--;
+
+
+//----------------------------------------TORRE 1: DIREITA
+
 	newboard.white_pawns = b.white_pawns;
 	newboard.black_pawns = b.black_pawns;
 	newboard.white_rooks = b.white_rooks;
@@ -330,12 +341,6 @@ unsigned long long movements()
 	aux&=rook;
 	rook = -rook; rook--;
 
-	black_pieces = b.black_pawns | b.black_bishops;
-	black_pieces = black_pieces | b.black_rooks;
-	black_pieces = -black_pieces;
-	black_pieces--;
-	
-	//torre 1 move direita
 	while((rook & direita) && ((rook>>1)& white_pieces) && ((rook>>1)& black_pieces))
 	{
 		
@@ -360,6 +365,7 @@ unsigned long long movements()
 		newboard.black_bishops&=rook;
 		mov[mcounter++] = newboard;		
 	}
+//----------------------------------------TORRE 2: DIREITA
 
 	newboard.white_pawns = b.white_pawns;
 	newboard.black_pawns = b.black_pawns;
@@ -369,22 +375,13 @@ unsigned long long movements()
 	newboard.black_bishops = b.black_bishops;
 	newboard.enpassant = 0;
 	
-	rook = aux&-aux;
-	rook = -rook; rook--;
-	aux&=rook;
-	rook = -rook; rook--;
-
 	black_pieces = b.black_pawns | b.black_bishops;
 	black_pieces = black_pieces | b.black_rooks;
 	black_pieces = -black_pieces;
 	black_pieces--;
-	
 
-
-	//torre 2 move direita
 	while((rook & direita) && ((rook>>1)& white_pieces) && ((rook>>1)& black_pieces))
 	{
-		
 		rook = -rook; rook--;
 		newboard.white_rooks &=rook;		
 		rook = -rook; rook--;
@@ -407,6 +404,7 @@ unsigned long long movements()
 		mov[mcounter++] = newboard;		
 	}
 
+//----------------------------------------TORRE 1: ESQUERDA
 	newboard.white_pawns = b.white_pawns;
 	newboard.black_pawns = b.black_pawns;
 	newboard.white_rooks = b.white_rooks;
@@ -422,12 +420,6 @@ unsigned long long movements()
 	aux&=rook;
 	rook = -rook; rook--;
 
-	black_pieces = b.black_pawns | b.black_bishops;
-	black_pieces = black_pieces | b.black_rooks;
-	black_pieces = -black_pieces;
-	black_pieces--;
-	
-	//torre 1 move esquerda
 	while((rook & esquerda) && ((rook<<1)& white_pieces) && ((rook<<1)& black_pieces))
 	{
 		
@@ -453,6 +445,7 @@ unsigned long long movements()
 		mov[mcounter++] = newboard;		
 	}
 
+//----------------------------------------TORRE 2: ESQUERDA
 	newboard.white_pawns = b.white_pawns;
 	newboard.black_pawns = b.black_pawns;
 	newboard.white_rooks = b.white_rooks;
@@ -466,14 +459,6 @@ unsigned long long movements()
 	aux&=rook;
 	rook = -rook; rook--;
 
-	black_pieces = b.black_pawns | b.black_bishops;
-	black_pieces = black_pieces | b.black_rooks;
-	black_pieces = -black_pieces;
-	black_pieces--;
-	
-
-
-	//torre 2 move direita
 	while((rook & esquerda) && ((rook<<1)& white_pieces) && ((rook<<1)& black_pieces))
 	{
 		
@@ -499,7 +484,8 @@ unsigned long long movements()
 		mov[mcounter++] = newboard;		
 	}
 
-	
+
+//----------------------------------------TORRE 1: CIMA
 	newboard.white_pawns = b.white_pawns;
 	newboard.black_pawns = b.black_pawns;
 	newboard.white_rooks = b.white_rooks;
@@ -514,7 +500,6 @@ unsigned long long movements()
 	aux&=rook;
 	rook = -rook; rook--;
 
-		//torre 1 move cima
 
 while((rook & superior) && ((rook<<8)& white_pieces) && ((rook<<8)& black_pieces))
 	{
@@ -541,6 +526,7 @@ while((rook & superior) && ((rook<<8)& white_pieces) && ((rook<<8)& black_pieces
 		mov[mcounter++] = newboard;		
 	}
 
+//----------------------------------------TORRE 2: CIMA
 	newboard.white_pawns = b.white_pawns;
 	newboard.black_pawns = b.black_pawns;
 	newboard.white_rooks = b.white_rooks;
@@ -554,11 +540,6 @@ while((rook & superior) && ((rook<<8)& white_pieces) && ((rook<<8)& black_pieces
 	aux&=rook;
 	rook = -rook; rook--;
 
-
-	
-
-
-	//torre 2 move cima
 	while((rook &superior) && ((rook<<8)& white_pieces) && ((rook<<8)& black_pieces))
 	{
 		
@@ -584,6 +565,7 @@ while((rook & superior) && ((rook<<8)& white_pieces) && ((rook<<8)& black_pieces
 		mov[mcounter++] = newboard;		
 	}
 
+//----------------------------------------TORRE 1: BAIXO
 	newboard.white_pawns = b.white_pawns;
 	newboard.black_pawns = b.black_pawns;
 	newboard.white_rooks = b.white_rooks;
@@ -597,8 +579,6 @@ while((rook & superior) && ((rook<<8)& white_pieces) && ((rook<<8)& black_pieces
 	rook = -rook; rook--;
 	aux&=rook;
 	rook = -rook; rook--;
-
-	//torre 1 move baixo
 
 	while((rook & inferior) && ((rook>>8)& white_pieces) && ((rook>>8)& black_pieces))
 	{
@@ -625,6 +605,7 @@ while((rook & superior) && ((rook<<8)& white_pieces) && ((rook<<8)& black_pieces
 		mov[mcounter++] = newboard;		
 	}
 
+//----------------------------------------TORRE 2: BAIXO
 	newboard.white_pawns = b.white_pawns;
 	newboard.black_pawns = b.black_pawns;
 	newboard.white_rooks = b.white_rooks;
@@ -638,11 +619,6 @@ while((rook & superior) && ((rook<<8)& white_pieces) && ((rook<<8)& black_pieces
 	aux&=rook;
 	rook = -rook; rook--;
 
-
-	
-
-
-	//torre 2 move baixo
 	while((rook &inferior) && ((rook>>8)& white_pieces) && ((rook>>8)& black_pieces))
 	{
 		
@@ -667,24 +643,329 @@ while((rook & superior) && ((rook<<8)& white_pieces) && ((rook<<8)& black_pieces
 		newboard.black_bishops&=rook;
 		mov[mcounter++] = newboard;		
 	}
-	
-		
 
-	cout<<"ESTADO INICIAL:"<<endl;
-	cout<<"WHITE rooks"<<endl;
-	print(b.white_rooks);
 
-	for(int i =0;i<mcounter;i++)
+//MOVIMENTOS BISPOS
+//----------------------------------------BISPO 1: CIMA-DIREITA
+	newboard.white_pawns = b.white_pawns;
+	newboard.black_pawns = b.black_pawns;
+	newboard.white_rooks = b.white_rooks;
+	newboard.black_rooks = b.black_rooks;
+	newboard.white_bishops = b.white_bishops;
+	newboard.black_bishops = b.black_bishops;
+	newboard.enpassant = 0;
+
+	aux = newboard.white_bishops;
+	bishop = aux&-aux;
+	bishop = -bishop; bishop--;
+	aux&=bishop;
+	bishop = -bishop; bishop--;
+
+	while((bishop & direita & superior) && ((bishop<<7)& white_pieces) && ((bishop<<7)& black_pieces))
 	{
-	cout<<"MOVIMENTO "<<i<<":"<<endl;
-	cout<<"WHITE rooks"<<endl;
-	print(mov[i].white_rooks);
-	cout<<"BLACK rooks"<<endl;
-	print(mov[i].black_rooks);
-	printf("\n");
+		
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop<<=7;
+		newboard.white_bishops|=bishop;
+		mov[mcounter++] = newboard;
+		
+	}
+	if((bishop & direita & superior )&& !((bishop<<7)& black_pieces))
+	{
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop<<=7;
+		newboard.white_bishops|=bishop;
+		bishop = -bishop; bishop--;
+		newboard.black_pawns&=bishop;
+		newboard.black_bishops&=bishop;
+		newboard.black_bishops&=bishop;
+		mov[mcounter++] = newboard;		
 	}
 
 
+//----------------------------------------BISPO 2: CIMA-DIREITA
+	newboard.white_pawns = b.white_pawns;
+	newboard.black_pawns = b.black_pawns;
+	newboard.white_rooks = b.white_rooks;
+	newboard.black_rooks = b.black_rooks;
+	newboard.white_bishops = b.white_bishops;
+	newboard.black_bishops = b.black_bishops;
+	newboard.enpassant = 0;
+
+	bishop = aux&-aux;
+	bishop = -bishop; bishop--;
+	aux&=bishop;
+	bishop = -bishop; bishop--;
+
+	while((bishop & superior & direita) && ((bishop<<7)& white_pieces) && ((bishop<<7)& black_pieces))
+	{
+		
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop<<=7;
+		newboard.white_bishops|=bishop;
+		mov[mcounter++] = newboard;
+		
+	}
+	if((bishop & superior & direita)&& !((bishop<<7)& black_pieces))
+	{
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop<<=7;
+		newboard.white_bishops|=bishop;
+		bishop = -bishop; bishop--;
+		newboard.black_pawns&=bishop;
+		newboard.black_bishops&=bishop;
+		newboard.black_bishops&=bishop;
+		mov[mcounter++] = newboard;		
+	}
+
+
+//----------------------------------------BISPO 1: CIMA-ESQUERDA
+	newboard.white_pawns = b.white_pawns;
+	newboard.black_pawns = b.black_pawns;
+	newboard.white_rooks = b.white_rooks;
+	newboard.black_rooks = b.black_rooks;
+	newboard.white_bishops = b.white_bishops;
+	newboard.black_bishops = b.black_bishops;
+	newboard.enpassant = 0;
+
+	aux = newboard.white_bishops;
+	bishop = aux&-aux;
+	bishop = -bishop; bishop--;
+	aux&=bishop;
+	bishop = -bishop; bishop--;
+
+	while((bishop & esquerda & superior) && ((bishop<<9)& white_pieces) && ((bishop<<9)& black_pieces))
+	{
+		
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop<<=9;
+		newboard.white_bishops|=bishop;
+		mov[mcounter++] = newboard;
+		
+	}
+	if((bishop & esquerda & superior )&& !((bishop<<9)& black_pieces))
+	{
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop<<=9;
+		newboard.white_bishops|=bishop;
+		bishop = -bishop; bishop--;
+		newboard.black_pawns&=bishop;
+		newboard.black_bishops&=bishop;
+		newboard.black_bishops&=bishop;
+		mov[mcounter++] = newboard;		
+	}
+
+
+//----------------------------------------BISPO 2: CIMA-ESQUERDA
+	newboard.white_pawns = b.white_pawns;
+	newboard.black_pawns = b.black_pawns;
+	newboard.white_rooks = b.white_rooks;
+	newboard.black_rooks = b.black_rooks;
+	newboard.white_bishops = b.white_bishops;
+	newboard.black_bishops = b.black_bishops;
+	newboard.enpassant = 0;
+
+	bishop = aux&-aux;
+	bishop = -bishop; bishop--;
+	aux&=bishop;
+	bishop = -bishop; bishop--;
+
+	while((bishop & superior & esquerda) && ((bishop<<9)& white_pieces) && ((bishop<<9)& black_pieces))
+	{
+		
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop<<=9;
+		newboard.white_bishops|=bishop;
+		mov[mcounter++] = newboard;
+		
+	}
+	if((bishop & superior & esquerda)&& !((bishop<<9)& black_pieces))
+	{
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop<<=9;
+		newboard.white_bishops|=bishop;
+		bishop = -bishop; bishop--;
+		newboard.black_pawns&=bishop;
+		newboard.black_bishops&=bishop;
+		newboard.black_bishops&=bishop;
+		mov[mcounter++] = newboard;		
+	}
+
+//--------------------------------------------BISPO 1: BAIXO-DIREITA
+	newboard.white_pawns = b.white_pawns;
+	newboard.black_pawns = b.black_pawns;
+	newboard.white_rooks = b.white_rooks;
+	newboard.black_rooks = b.black_rooks;
+	newboard.white_bishops = b.white_bishops;
+	newboard.black_bishops = b.black_bishops;
+	newboard.enpassant = 0;
+
+	aux = newboard.white_bishops;
+	bishop = aux&-aux;
+	bishop = -bishop; bishop--;
+	aux&=bishop;
+	bishop = -bishop; bishop--;
+
+
+	while((bishop & direita & inferior) && ((bishop>>9)& white_pieces) && ((bishop>>9)& black_pieces))
+	{
+		
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop>>=9;
+		newboard.white_bishops|=bishop;
+		mov[mcounter++] = newboard;
+		
+	}
+	if((bishop & direita & inferior )&& !((bishop>>9)& black_pieces))
+	{
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop>>=9;
+		newboard.white_bishops|=bishop;
+		bishop = -bishop; bishop--;
+		newboard.black_pawns&=bishop;
+		newboard.black_bishops&=bishop;
+		newboard.black_bishops&=bishop;
+		mov[mcounter++] = newboard;		
+	}
+
+
+//--------------------------------------------BISPO 2: BAIXO-DIREITA
+	newboard.white_pawns = b.white_pawns;
+	newboard.black_pawns = b.black_pawns;
+	newboard.white_rooks = b.white_rooks;
+	newboard.black_rooks = b.black_rooks;
+	newboard.white_bishops = b.white_bishops;
+	newboard.black_bishops = b.black_bishops;
+	newboard.enpassant = 0;
+
+	bishop = aux&-aux;
+	bishop = -bishop; bishop--;
+	aux&=bishop;
+	bishop = -bishop; bishop--;
+
+	while((bishop & inferior & direita) && ((bishop>>9)& white_pieces) && ((bishop>>9)& black_pieces))
+	{
+		
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop>>=9;
+		newboard.white_bishops|=bishop;
+		mov[mcounter++] = newboard;
+		
+	}
+	if((bishop & inferior & direita)&& !((bishop>>9)& black_pieces))
+	{
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop>>=9;
+		newboard.white_bishops|=bishop;
+		bishop = -bishop; bishop--;
+		newboard.black_pawns&=bishop;
+		newboard.black_bishops&=bishop;
+		newboard.black_bishops&=bishop;
+		mov[mcounter++] = newboard;		
+	}
+//--------------------------------------------BISPO 1: BAIXO-ESQUERDA	
+	newboard.white_pawns = b.white_pawns;
+	newboard.black_pawns = b.black_pawns;
+	newboard.white_rooks = b.white_rooks;
+	newboard.black_rooks = b.black_rooks;
+	newboard.white_bishops = b.white_bishops;
+	newboard.black_bishops = b.black_bishops;
+	newboard.enpassant = 0;
+
+	aux = newboard.white_bishops;
+	bishop = aux&-aux;
+	bishop = -bishop; bishop--;
+	aux&=bishop;
+	bishop = -bishop; bishop--;
+
+	while((bishop & esquerda & inferior) && ((bishop>>7)& white_pieces) && ((bishop>>7)& black_pieces))
+	{
+		
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop>>=7;
+		newboard.white_bishops|=bishop;
+		mov[mcounter++] = newboard;
+		
+	}
+	if((bishop & esquerda & inferior )&& !((bishop>>7)& black_pieces))
+	{
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop>>=7;
+		newboard.white_bishops|=bishop;
+		bishop = -bishop; bishop--;
+		newboard.black_pawns&=bishop;
+		newboard.black_bishops&=bishop;
+		newboard.black_bishops&=bishop;
+		mov[mcounter++] = newboard;		
+	}
+
+
+//--------------------------------------------BISPO 2: BAIXO-ESQUERDA
+	newboard.white_pawns = b.white_pawns;
+	newboard.black_pawns = b.black_pawns;
+	newboard.white_rooks = b.white_rooks;
+	newboard.black_rooks = b.black_rooks;
+	newboard.white_bishops = b.white_bishops;
+	newboard.black_bishops = b.black_bishops;
+	newboard.enpassant = 0;
+
+	bishop = aux&-aux;
+	bishop = -bishop; bishop--;
+	aux&=bishop;
+	bishop = -bishop; bishop--;
+
+	while((bishop & inferior & esquerda) && ((bishop>>7)& white_pieces) && ((bishop>>7)& black_pieces))
+	{
+		
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop>>=7;
+		newboard.white_bishops|=bishop;
+		mov[mcounter++] = newboard;
+		
+	}
+	if((bishop & inferior & esquerda)&& !((bishop>>7)& black_pieces))
+	{
+		bishop = -bishop; bishop--;
+		newboard.white_bishops &=bishop;		
+		bishop = -bishop; bishop--;
+		bishop>>=7;
+		newboard.white_bishops|=bishop;
+		bishop = -bishop; bishop--;
+		newboard.black_pawns&=bishop;
+		newboard.black_bishops&=bishop;
+		newboard.black_bishops&=bishop;
+		mov[mcounter++] = newboard;		
+	}	
 }
 
 
