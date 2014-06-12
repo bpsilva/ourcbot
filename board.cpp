@@ -11,12 +11,6 @@ typedef struct bitboard
 long long white_pawns, white_rooks, white_bishops, black_pawns, black_rooks, black_bishops, enpassant;
 }BOARD;
 
-typedef struct mov
-{
-BOARD *b;
-mov *prox;
-}MOVEMENTS;
-
 BOARD translation(char sboard[64], int who_moves, BOARD board)
 {
 
@@ -92,9 +86,24 @@ void print(unsigned long long board)
 unsigned long long movements()
 {
 	///para teste--------
-	BOARD b = {pow(2,8)-1, 0, 0, 0, 0, 0, 0};
-	b.white_pawns<<=8;
+	BOARD b = {1, 0, 0, 1, 0, 0, 0};
+	long long um = 1;
+	b.white_pawns<<=36;
+	b.white_pawns|= um <<15;		
+	b.white_pawns|= um <<38;
+	b.white_pawns|= um <<41;
+	b.white_pawns|= um <<42;
+	
+	b.black_pawns<<=37;
+	//b.black_pawns|= um <<49;
+	b.black_pawns|= um <<50;
+	b.black_pawns|= um <<51;
+	b.black_pawns|= um <<52;
+	b.black_pawns|= um <<54;
+	b.black_pawns|= um <<55;
+	b.enpassant|= um <<37;
 	///------------------
+
 
 
 	BOARD newboard = {b.white_pawns, b.white_rooks, b.white_bishops, b.black_pawns, b.black_rooks, b.black_bishops, b.enpassant};	
@@ -112,6 +121,7 @@ unsigned long long movements()
 	black_pieces--;
 
 	long long aux = 0;
+	long long aux2 = 0;	
 	long long pawn = 0;
 
 // white pawns' movements
@@ -121,6 +131,10 @@ unsigned long long movements()
 	aux <<= 8;
 	aux &=white_pieces;
 	aux &=black_pieces;
+	aux2 = aux;
+	aux2<<=8;
+	aux2 &=white_pieces;
+	aux2 &=black_pieces;
 	newboard.white_pawns = b.white_pawns;
 	//pawn = menos signigicativo de aux
 	pawn = aux&-aux;
@@ -142,49 +156,38 @@ unsigned long long movements()
 		pawn = -pawn;
 		pawn--;
 		newboard.white_pawns&=pawn;
-		pawn = -pawn;
-		pawn--;
+
+		newboard.enpassant = 0;
 		mov[mcounter++] = newboard;
-		
-		if(pawn<=pow(2,48)-1)
-		{
-
-			pawn <<= 16;
-			black_pieces = -black_pieces;
-			black_pieces--;
-			white_pieces = -white_pieces;
-			white_pieces--;
-			
-			if((pawn & black_pieces) == 0 && (pawn & white_pieces) == 0)
-			{
-				newboard.white_pawns|=pawn;
-				pawn >>= 8;
-				pawn = -pawn;
-				pawn--;
-				newboard.white_pawns&=pawn;
-				pawn = -pawn;
-				pawn--;
-
-				if(pow(2,23)>=pawn && pawn >=pow(2,16))
-				{
-
-				pawn <<= 8;
-				
-					newboard.enpassant = pawn;
-				}
-				mov[mcounter++] = newboard;
-				
-			}		
-			black_pieces = -black_pieces;
-			black_pieces--;
-			white_pieces = -white_pieces;
-			white_pieces--;	
-		}
 		newboard.white_pawns = b.white_pawns;
-		newboard.enpassant = b.enpassant;
 		//pawn = menos signigicativo de aux
 		pawn = aux&-aux;
 	}
+	pawn = aux2&-aux2;
+	while(pawn!=0 && pawn <= pow(2,31))
+	{
+		//adiciona pawn em newboard.pawns
+		newboard.white_pawns|=pawn;
+		newboard.enpassant = pawn;
+		//apaga pawn de aux
+		pawn = -pawn;
+		pawn--;
+		aux2 &=pawn;		
+		pawn = -pawn;
+		pawn--;
+		//remover pawn da posição original em newboard.pawns
+		pawn>>=16;
+		pawn = -pawn;
+		pawn--;
+		newboard.white_pawns&=pawn;
+		mov[mcounter++] = newboard;
+		newboard.white_pawns = b.white_pawns;
+		newboard.enpassant = b.enpassant;
+		//pawn = menos signigicativo de aux
+		pawn = aux2&-aux2;
+	}
+	
+	
 	
 	black_pieces = -black_pieces;
 	black_pieces--;
@@ -196,6 +199,9 @@ unsigned long long movements()
 	aux &=white_pieces;
 	aux &=black_pieces;
 	newboard.white_pawns = b.white_pawns;
+	newboard.black_pawns = b.black_pawns;
+	newboard.black_rooks = b.black_rooks;
+	newboard.black_bishops = b.black_bishops;
 
 	//pawn = menos signigicativo de aux
 	pawn = aux&-aux;
@@ -218,10 +224,13 @@ unsigned long long movements()
 		pawn = -pawn;
 		pawn--;
 		newboard.white_pawns&=pawn;
-		pawn = -pawn;
-		pawn--;
+
+		newboard.enpassant = 0;
 		mov[mcounter++] = newboard;
 
+		newboard.black_pawns = b.black_pawns;
+		newboard.black_rooks = b.black_rooks;
+		newboard.black_bishops = b.black_bishops;
 		newboard.white_pawns = b.white_pawns;
 		//pawn = menos signigicativo de aux
 		pawn = aux&-aux;
@@ -256,8 +265,7 @@ unsigned long long movements()
 		pawn = -pawn;
 		pawn--;
 		newboard.white_pawns&=pawn;
-		pawn = -pawn;
-		pawn--;
+		newboard.enpassant = 0;
 		mov[mcounter++] = newboard;
 
 		newboard.white_pawns = b.white_pawns;
@@ -271,58 +279,67 @@ unsigned long long movements()
 	{
 	newboard.white_pawns = b.white_pawns;
 	aux = b.enpassant;
-
-		if((aux == pow(2,32)) && ((aux << 1) & newboard.white_pawns))
+		
+		if(((newboard.white_pawns & -72340172838076674) >> 1) & aux)
 		{
-			aux<<=9;
-			newboard.white_pawns |=aux;			
-			aux>>=8;
+			
+			newboard.white_pawns |= (aux<<8);
+
+			aux<<=1;
 			aux = - aux;
 			aux--;
-			newboard.white_pawns &=aux;
+			newboard.white_pawns &= aux;
+			aux = - aux;
+			aux--;			
+			aux>>=1;
+			aux = - aux;
+			aux--;
+
+			newboard.black_pawns &=aux;
+			newboard.enpassant = 0;
 			mov[mcounter++] = newboard;			
-		}else
-			{
-				if((aux == pow(2,39)) && ((aux >> 1) & newboard.white_pawns))
-				{
-					aux<<=7;
-					newboard.white_pawns |=aux;			
-					aux>>=8;
-					aux = - aux;
-					aux--;
-					newboard.white_pawns &=aux;
-					mov[mcounter++] = newboard;	
+		}	
 
-				}else
-					{	
-						if((aux >> 1) & newboard.white_pawns)
-						{					
-							aux<<=7;
-							newboard.white_pawns |=aux;			
-							aux>>=8;
-							aux = - aux;
-							aux--;
-							newboard.white_pawns &=aux;
-							mov[mcounter++] = newboard;
-						}
-						newboard.white_pawns = b.white_pawns;
-						if((aux << 1) & newboard.white_pawns)
-						{					
-							aux<<=9;
-							newboard.white_pawns |=aux;			
-							aux>>=8;
-							aux = - aux;
-							aux--;
-							newboard.white_pawns &=aux;
-							mov[mcounter++] = newboard;
-						}
-					}
-			}
+	newboard.white_pawns = b.white_pawns;
+	newboard.black_pawns = b.black_pawns;
+	aux = b.enpassant;
+
+		if(((newboard.white_pawns & 9187201950435737471) << 1) & aux)
+		{
+			
+			newboard.white_pawns |= (aux<<8);
+			aux>>=1;
+			aux = - aux;
+			aux--;
+			newboard.white_pawns &= aux;
+			aux = - aux;
+			aux--;			
+			aux<<=1;
+			aux = - aux;
+			aux--;
+			newboard.black_pawns &=aux;
+			newboard.enpassant = 0;
+			mov[mcounter++] = newboard;			
+		}
 	}
+	newboard.white_pawns = b.white_pawns;
+	newboard.black_pawns = b.black_pawns;
 
+
+	cout<<"ESTADO INICIAL:"<<endl;
+	cout<<"WHITE PAWNS"<<endl;
+	print(b.white_pawns);
+	cout<<"BLACK PAWNS"<<endl;
+	print(b.white_pawns);
 	for(int i =0;i<mcounter;i++)
 	{
+	cout<<"MOVIMENTO "<<i<<":"<<endl;
+	cout<<"WHITE PAWNS"<<endl;
 	print(mov[i].white_pawns);
+	printf("\n");
+	cout<<"BLACK PAWNS"<<endl;
+	print(mov[i].black_pawns);
+	cout<<"ENPASSANT"<<endl;
 	printf("\n");
 	print(mov[i].enpassant);
 	printf("\n");
